@@ -1,7 +1,7 @@
 # arquivos da IDE
-*.idea
+.idea
 # banco de dados
-*.sqlite3
+db.sqlite3
 # arquivos compilados do python
 *pyc
 # virtual enviroment
