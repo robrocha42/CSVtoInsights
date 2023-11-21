@@ -1,0 +1,170 @@
+{% extends "base_header.html" %}
+{% load crispy_forms_tags %}
+{% block input_upload %}
+
+  <form action="" method="post" id="upload_form" enctype="multipart/form-data" class="mt-4">
+    {% csrf_token %}
+      <div class="container mt-2">
+        <div class="row text-center">
+          <h2> Faça upload de um arquivo chamado <b> Funcionarios.CSV </b></h2>
+          </div>
+          <div class="d-flex justify-content-center">
+              {{ form|crispy }}
+          </div>
+          <div class="text-center" >
+            <input type="submit" value="Submit" class="mr-5">
+            <input type="submit" value="Cancel" onclick="window.location.href='{% url 'home:home' %}'; return false;">
+          </div>
+
+        </div>
+
+            {% if messages %}
+          <div class="col d-flex justify-content-center mt-3">
+              <div class="alert alert-success alert-dismissible fade show" role="alert">
+                      {% for message in messages %}
+                       <h5> {{ message }} </h5>
+                      {% endfor %}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+          </div>
+            {% endif %}
+
+  </form>
+
+
+
+<!-- https://stackoverflow.com/questions/2472422/django-file-upload-size-limit -->
+<script>
+document.getElementById("upload_form").addEventListener("submit", function() {
+  console.log('Checking file size');
+  if (window.File && window.FileReader && window.FileList && window.Blob) {
+      var file = document.getElementById('id_{{ form.upload_field_name }}').files[0];
+      if (file && file.size > {{ form.max_upload_limit }} ) {
+          alert("O arquivo " + file.name + " deve ser menor que ou igual a {{ form.max_upload_limit_text }}");
+      return false;
+    }
+  }
+});
+</script>
+
+{% endblock input_upload %}
+
+{% block grafico %}
+<div class="container mt-5">
+  <div class="row">
+    <div class="col">
+        <div class="d-flex justify-content-center">
+            <h3>Contagem de funcionários por tipo de contrato</h3>
+        </div>
+        <div class="d-flex justify-content-center mt-3">
+            <canvas id="chartPie" aria-label="chart" style="width:100%;max-width:600px" ></canvas>
+        </div>
+        <script>
+              var chrt = document.getElementById("chartPie").getContext("2d");
+              var chartId = new Chart(chrt, {
+                 type: 'pie',
+                 data: {
+                    labels: ["home office", "experiência", "indeterminado"],
+                    datasets: [{
+                       label: "Total",
+                       data: [{{contHome}}, {{contExp}}, {{contInd}}],
+                       backgroundColor: ['yellow', 'aqua', 'red'],
+                       hoverOffset: 5
+                    }],
+                 },
+                 options: {
+                    responsive: false,
+                    plugins: {
+                        labels: {
+                            render: 'value',
+                            fontStyle: 'bolder',
+                            fontSize: 35
+                      }
+                   }
+                 }
+              });
+           </script>
+    </div>
+
+  </div>
+</div>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col">
+      <div class="d-flex justify-content-center">
+            <h3>Faixa etária dos funcionários</h3>
+        </div>
+        <div class="d-flex justify-content-center mt-3">
+            <canvas id="chartBar" style="width:100%;max-width:1000px"></canvas>
+        </div>
+        <script>
+            var ctx = document.getElementById("chartBar").getContext("2d");
+            var xValues = ["18-25", "26-35", "36-45", "46-55", "Acima de 55"];
+            var yValues = [{{fEtaria.f1}}, {{fEtaria.f2}}, {{fEtaria.f3}}, {{fEtaria.f4}}, {{fEtaria.f5}}];
+            var barColors = ["red", "green","blue","orange","brown"];
+
+            var mybarChart = new Chart(ctx, {
+              type: 'bar',
+              data: {
+                labels: xValues,
+                datasets: [{
+                  label: ['Total'],
+                  backgroundColor: barColors,
+                  data: yValues
+                }]
+              },
+
+              options: {
+
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                },
+              }
+            });
+           </script>
+    </div>
+    </div>
+
+</div>
+
+{% endblock grafico %}
+
+  {% block lista %}
+<div class="container-fluid mt-5 px-0">
+    <div class="d-flex justify-content-center">
+        <h2>Lista de funcionários</h2>
+    </div>
+    <div class="row mt-4">
+        <div class="col">
+            <div class="table-responsive">
+              <table id="funcionarios" class="table table-striped table-hover">
+                  <thead>
+                      <tr>
+                          <th>Nome</th>
+                          <th>CPF</th>
+                          <th>D.Nascimento</th>
+                          <th>T.Contrato</th>
+                          <th>Setor</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                  {% for f in func %}
+                  <tr>
+                      <td>{{f.nome}}</td>
+                      <td>{{f.cpf}}</td>
+                      <td>{{f.data_nascimento}}</td>
+                      <td>{{f.tipo_contrato.tipo_contrato}}</td>
+                      <td>{{f.setor.setor}}</td>
+                  </tr>
+                  {% endfor %}
+                  </tbody>
+              </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+  {% endblock lista %}
