@@ -1,0 +1,8 @@
+# arquivos da IDE
+*.idea
+# banco de dados
+*.sqlite3
+# arquivos compilados do python
+*pyc
+# virtual enviroment
+.venv
